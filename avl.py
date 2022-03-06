@@ -9,8 +9,32 @@ class AVL(BST):
     def __init__(self, key, parent):
         super().__init__(key=key, parent=parent)
 
+    @property
+    def balance(self):
+        rh = self.right.height if self.right else -1
+        lh = self.left.height if self.left else -1
+        return rh - lh
+
+    def check_ri(self):
+        msg0 = "AVL Representation Invariant Violated"
+        msg1 = "BST Representation Invariant Violated"
+        msg2 = "BST Parent-Child Consistency Invariant Violated"
+        if not (-2 < self.balance < 2):
+            raise RuntimeError(msg0)
+        if self.left:
+            if not self.left.key < self.key:
+                raise RuntimeError(msg1)
+            if self.left.parent is not self:
+                raise RuntimeError(msg2)
+            self.left.check_ri()
+        if self.right:
+            if not self.right.key > self.key:
+                raise RuntimeError(msg1)
+            if self.right.parent is not self:
+                raise RuntimeError(msg2)
+            self.right.check_ri()
+
     def left_rotate(self):
-        print('AVL.left_rotate')
         assert self.right is not None
         x = self
         y = self.right
@@ -36,7 +60,6 @@ class AVL(BST):
         return y
 
     def right_rotate(self):
-        print('AVL.right_rotate')
         assert self.left is not None
         y = self
         x = self.left
@@ -62,7 +85,6 @@ class AVL(BST):
         return x
 
     def fix_right_heavy(self):
-        print('AVL.fix_right_heavy')
         x = self
         xr_balance = (x.right.right.height if x.right.right else -1) \
             - (x.right.left.height if x.right.left else -1)
@@ -75,7 +97,6 @@ class AVL(BST):
             return x.left_rotate()
 
     def fix_left_heavy(self):
-        print('AVL.fix_left_heavy')
         # left heavy node x, deal by symmetry
         x = self
         xl_balance = (x.left.right.height if x.left.right else -1) \
@@ -89,16 +110,11 @@ class AVL(BST):
             return x.right_rotate()
 
     def fix_avl(self, node):
-        print('AVL.fix_avl')
         while node:
-            print(f'{node.key}')
-            balance = (node.right.height if node.right else -1) \
-                - (node.left.height if node.left else -1)
-            print(f'\tbalance: {balance}')
             parent = node.parent
             if parent:
                 go_right = parent.right == node
-            if balance == 2:
+            if node.balance == 2:
                 x = node
                 y = x.fix_right_heavy()
                 if parent:
@@ -107,11 +123,11 @@ class AVL(BST):
                     else:
                         parent.left = y
                     y.parent = parent
-                    self.fix_heights(parent)
+                    self._update_heights(parent)
                 else:
                     y.parent = None
                     return y
-            if balance == -2:
+            if node.balance == -2:
                 y = node
                 x = y.fix_left_heavy()
                 if parent:
@@ -120,7 +136,7 @@ class AVL(BST):
                     else:
                         parent.left = x
                     y.parent = parent
-                    self.fix_heights(parent)
+                    self._update_heights(parent)
                 else:
                     x.parent = None
                     return x
@@ -128,10 +144,21 @@ class AVL(BST):
                 return node
             node = parent
 
-    def insert(self, node):
-        # returns root.
-        BST.insert(self, node)
-        return self.fix_avl(node)
+    def insert(self, key, check_ri=False):
+        # returns root since tree may be rotated
+        node = AVL(key=key, parent=None)
+        BST._insert(self, node)
+        root = self.fix_avl(node.parent)
+        if check_ri:
+            root.check_ri()
+        return root
 
-    def __repr__(self):
-        return f"BST(key={self.key}, height={self.height}, left={self.left.__repr__()}, right={self.right.__repr__()})"
+    def delete(self, key, check_ri=False):
+        # check this against the ref impl
+        node = BST.search(self, key)
+        parent = node.parent
+        BST._delete(self, node)
+        root = self.fix_avl(parent)
+        if check_ri:
+            root.check_ri()
+        return root
