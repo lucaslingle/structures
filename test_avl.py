@@ -1,4 +1,49 @@
+import pytest
+
 from avl import AVL
+
+
+def test_check_ri():
+    # child node violates bst property -> should throw runtime error.
+    avl = AVL(parent=None, key=0)
+    avl.left = AVL(parent=avl, key=1)
+    avl.height = 1
+    avl.left.height = 0
+    with pytest.raises(RuntimeError):
+        avl.check_ri()
+
+    avl = AVL(parent=None, key=0)
+    avl.right = AVL(parent=avl, key=-1)
+    avl.height = 1
+    avl.right.height = 0
+    with pytest.raises(RuntimeError):
+        avl.check_ri()
+
+    # child node has no parent -> should throw runtime error.
+    avl = AVL(parent=None, key=0)
+    avl.left = AVL(parent=None, key=-1)
+    avl.height = 1
+    avl.left.height = 0
+    with pytest.raises(RuntimeError):
+        avl.check_ri()
+
+    avl = AVL(parent=None, key=0)
+    avl.right = AVL(parent=None, key=1)
+    avl.height = 1
+    avl.right.height = 0
+    with pytest.raises(RuntimeError):
+        avl.check_ri()
+
+    # left and right subtree heights differ by two or more ->
+    #     should throw runtime error.
+    avl = AVL(parent=None, key=0)
+    avl.right = AVL(parent=None, key=1)
+    avl.right.right = AVL(parent=None, key=2)
+    avl.height = 2
+    avl.right.height = 1
+    avl.right.right.height = 0
+    with pytest.raises(RuntimeError):
+        avl.check_ri()
 
 
 def test_avl_balance():

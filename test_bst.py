@@ -7,20 +7,30 @@ def test_check_ri():
     # child node violates bst property -> should throw runtime error.
     bst = BST(parent=None, key=0)
     bst.left = BST(parent=bst, key=1)
+    bst.height = 1
+    bst.left.height = 0
     with pytest.raises(RuntimeError):
         bst.check_ri()
+
     bst = BST(parent=None, key=0)
     bst.right = BST(parent=bst, key=-1)
+    bst.height = 1
+    bst.right.height = 0
     with pytest.raises(RuntimeError):
         bst.check_ri()
 
     # child node has no parent -> should throw runtime error.
     bst = BST(parent=None, key=0)
     bst.left = BST(parent=None, key=-1)
+    bst.height = 1
+    bst.left.height = 0
     with pytest.raises(RuntimeError):
         bst.check_ri()
+
     bst = BST(parent=None, key=0)
     bst.right = BST(parent=None, key=1)
+    bst.height = 1
+    bst.right.height = 0
     with pytest.raises(RuntimeError):
         bst.check_ri()
 
