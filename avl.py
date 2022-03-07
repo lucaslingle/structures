@@ -15,6 +15,11 @@ class AVL(BST):
         lh = self.left.height if self.left else -1
         return rh - lh
 
+    def update_height(self):
+        rh = self.right.height if self.right else -1
+        lh = self.left.height if self.left else -1
+        self.height = 1 + max(lh, rh)
+
     def check_ri(self):
         msg0 = "AVL Representation Invariant Violated"
         msg1 = "BST Representation Invariant Violated"
@@ -35,120 +40,88 @@ class AVL(BST):
             self.right.check_ri()
 
     def left_rotate(self):
-        assert self.right is not None
         x = self
         y = self.right
-        A = x.left
-        B = y.left
-        C = y.right
-        x.left = A
-        if A:
-            A.parent = x
-        x.right = B
-        if B:
-            B.parent = x
-        x.height = 1 + max(
-            x.left.height if x.left else -1,
-            x.right.height if x.right else -1)
+        assert y
+        # fix parent up for rotated subtree
+        y.parent = x.parent
+        if y.parent:
+            if y.parent.left is x:     # subtree is to the left
+                y.parent.left = y
+            elif y.parent.right is x:  # subtree is to the right
+                y.parent.right = y
+        # perform rotation
+        x.right = y.left
+        if x.right:
+            x.right.parent = x
         y.left = x; x.parent = y
-        y.right = C
-        if C:
-            C.parent = y
-        y.height = 1 + max(
-            y.left.height if y.left else -1,
-            y.right.height if y.right else -1)
+        x.update_height()
+        y.update_height()
         return y
 
     def right_rotate(self):
-        assert self.left is not None
         y = self
         x = self.left
-        A = x.left
-        B = x.right
-        C = y.right
-        y.left = B
-        if B:
-            B.parent = y
-        y.right = C
-        if C:
-            C.parent = y
-        y.height = 1 + max(
-            y.left.height if y.left else -1,
-            y.right.height if y.right else -1)
-        x.left = A
-        if A:
-            A.parent = x
+        assert x
+        # fix parent up for rotated subtree
+        x.parent = y.parent
+        if x.parent:
+            if x.parent.left is y:     # subtree is to the left
+                x.parent.left = x
+            elif x.parent.right is y:  # subtree is to the right
+                x.parent.right = x
+        # perform rotation
+        y.left = x.right
+        if y.left:
+            y.left.parent = y
         x.right = y; y.parent = x
-        x.height = 1 + max(
-            x.left.height if x.left else -1,
-            x.right.height if x.right else -1)
+        y.update_height()
+        x.update_height()
         return x
 
     def fix_right_heavy(self):
+        assert self.balance == 2
         x = self
-        xr_balance = (x.right.right.height if x.right.right else -1) \
-            - (x.right.left.height if x.right.left else -1)
-        if xr_balance >= 0:
+        if x.right.balance >= 0:
             return x.left_rotate()
         else:
             z = x.right
             y = z.right_rotate()
             x.right = y
+            x.right.parent = x
             return x.left_rotate()
 
     def fix_left_heavy(self):
+        assert self.balance == -2
         # left heavy node x, deal by symmetry
         x = self
-        xl_balance = (x.left.right.height if x.left.right else -1) \
-            - (x.left.left.height if x.left.left else -1)
-        if xl_balance <= 0:
+        if x.left.balance <= 0:
             return x.right_rotate()
         else:
             z = x.left
             y = z.left_rotate()
             x.left = y
+            x.left.parent = x
             return x.right_rotate()
 
-    def fix_avl(self, node):
+    def rebalance(self, node):
+        root = None
         while node:
-            parent = node.parent
-            if parent:
-                go_right = parent.right == node
+            node.update_height()
             if node.balance == 2:
-                x = node
-                y = x.fix_right_heavy()
-                if parent:
-                    if go_right:
-                        parent.right = y
-                    else:
-                        parent.left = y
-                    y.parent = parent
-                    self._update_heights(parent)
-                else:
-                    y.parent = None
-                    return y
+                _ = node.fix_right_heavy()
             if node.balance == -2:
-                y = node
-                x = y.fix_left_heavy()
-                if parent:
-                    if go_right:
-                        parent.right = x
-                    else:
-                        parent.left = x
-                    y.parent = parent
-                    self._update_heights(parent)
-                else:
-                    x.parent = None
-                    return x
-            if not parent:
-                return node
-            node = parent
+                _ = node.fix_left_heavy()
+            if node.parent is None:
+                root = node
+            node = node.parent
+        return root
 
     def insert(self, key, check_ri=False):
         # returns root since tree may be rotated
         node = AVL(key=key, parent=None)
         BST._insert(self, node)
-        root = self.fix_avl(node.parent)
+        root = self.rebalance(node)
         if check_ri:
             root.check_ri()
         return root
@@ -158,7 +131,7 @@ class AVL(BST):
         node = BST.search(self, key)
         parent = node.parent
         BST._delete(self, node)
-        root = self.fix_avl(parent)
+        root = self.rebalance(parent)
         if check_ri:
             root.check_ri()
         return root

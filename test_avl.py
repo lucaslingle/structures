@@ -62,23 +62,28 @@ def test_avl_balance():
 
 
 def test_avl_insert():
+    # check constructor
     avl = AVL(parent=None, key=0)
     #        0
     assert avl.height == 0
     assert avl.key == 0
     assert avl.left is None
     assert avl.right is None
-    avl = avl.insert(1, check_ri=True)
-    #         0
-    #             1
-    assert avl.height == 1
-    assert avl.key == 0
-    assert avl.left is None
-    assert avl.right.key == 1
-    assert avl.right.parent == avl
+
+    # check leaf insert left
     avl = avl.insert(-1, check_ri=True)
     #         0
-    #    -1      1
+    #   -1
+    assert avl.height == 1
+    assert avl.key == 0
+    assert avl.left.key == -1
+    assert avl.left.parent == avl
+    assert avl.right is None
+
+    # check leaf insert right
+    avl = avl.insert(1, check_ri=True)
+    #         0
+    #    -1       1
     assert avl.height == 1
     assert avl.key == 0
     assert avl.left.key == -1
@@ -86,11 +91,20 @@ def test_avl_insert():
     assert avl.right.key == 1
     assert avl.right.parent == avl
 
+    # check rebalance for straight left heavy at root
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    #          -1
+    #     -2       0
+    assert avl.height == 1
+    assert avl.key == -1
+    assert avl.left.key == -2
+    assert avl.right.key == 0
+
+    # check rebalance for straight right heavy at root
     avl = AVL(parent=None, key=0)
     avl = avl.insert(1, check_ri=True)
-    #         0
-    #             1
-    assert avl.height == 1
     avl = avl.insert(2, check_ri=True)
     #         1
     #     0       2
@@ -98,15 +112,50 @@ def test_avl_insert():
     assert avl.key == 1
     assert avl.left.key == 0
     assert avl.right.key == 2
-    avl = avl.insert(3, check_ri=True)
-    #         1
-    #     0       2
-    #                3
-    assert avl.height == 2
-    assert avl.key == 1
+
+    # check zig-zag left heavy fix works at root
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(-0.5, check_ri=True)
+    #          -0.5
+    #     -1          0
+    assert avl.height == 1
+    assert avl.key == -0.5
+    assert avl.left.key == -1
+    assert avl.right.key == 0
+
+    # check zig-zag right heavy fix works at root
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(0.5, check_ri=True)
+    #         0.5
+    #     0        1
+    assert avl.height == 1
+    assert avl.key == 0.5
     assert avl.left.key == 0
-    assert avl.right.key == 2
-    assert avl.right.right.key == 3
+    assert avl.right.key == 1
+
+    # check rebalance for straight left heavy at non-root node
+    avl = AVL(parent=None, key=-1)
+    avl = avl.insert(0, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    avl = avl.insert(-3, check_ri=True)
+    avl = avl.insert(-4, check_ri=True)
+    #          -1
+    #     -3       0
+    # -4    -2
+    assert avl.height == 2
+    assert avl.key == -1
+    assert avl.right.key == 0
+    assert avl.left.key == -3
+    assert avl.left.right.key == -2
+    assert avl.left.left.key == -4
+
+    # check rebalance for straight right heavy at non-root node
+    avl = AVL(parent=None, key=1)
+    avl = avl.insert(0, check_ri=True)
+    avl = avl.insert(2, check_ri=True)
+    avl = avl.insert(3, check_ri=True)
     avl = avl.insert(4, check_ri=True)
     #         1
     #     0       3
@@ -117,7 +166,38 @@ def test_avl_insert():
     assert avl.right.key == 3
     assert avl.right.left.key == 2
     assert avl.right.right.key == 4
-    # todo: add tests for zig zag and zag zig, and for left mirror of everything
+
+    # check rebalance for zig-zag left heavy at non-root node
+    avl = AVL(parent=None, key=-1)
+    avl = avl.insert(0, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    avl = avl.insert(-3, check_ri=True)
+    avl = avl.insert(-2.5, check_ri=True)
+    #           -1
+    #     -2.5      0
+    #   -3   -2
+    assert avl.height == 2
+    assert avl.key == -1
+    assert avl.right.key == 0
+    assert avl.left.key == -2.5
+    assert avl.left.right.key == -2
+    assert avl.left.left.key == -3
+
+    # check rebalance for zig-zag right heavy at non-root node
+    avl = AVL(parent=None, key=1)
+    avl = avl.insert(0, check_ri=True)
+    avl = avl.insert(2, check_ri=True)
+    avl = avl.insert(3, check_ri=True)
+    avl = avl.insert(2.5, check_ri=True)
+    #         1
+    #     0       2.5
+    #           2     3
+    assert avl.height == 2
+    assert avl.key == 1
+    assert avl.left.key == 0
+    assert avl.right.key == 2.5
+    assert avl.right.left.key == 2
+    assert avl.right.right.key == 3
 
 
 if __name__ == '__main__':
