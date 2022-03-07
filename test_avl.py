@@ -37,8 +37,17 @@ def test_check_ri():
     # left and right subtree heights differ by two or more ->
     #     should throw runtime error.
     avl = AVL(parent=None, key=0)
-    avl.right = AVL(parent=None, key=1)
-    avl.right.right = AVL(parent=None, key=2)
+    avl.left = AVL(parent=avl, key=-1)
+    avl.left.left = AVL(parent=avl.left, key=-2)
+    avl.height = 2
+    avl.left.height = 1
+    avl.left.left.height = 0
+    with pytest.raises(RuntimeError):
+        avl.check_ri()
+
+    avl = AVL(parent=None, key=0)
+    avl.right = AVL(parent=avl, key=1)
+    avl.right.right = AVL(parent=avl.right, key=2)
     avl.height = 2
     avl.right.height = 1
     avl.right.right.height = 0

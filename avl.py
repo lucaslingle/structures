@@ -127,7 +127,7 @@ class AVL(BST):
         return root
 
     def delete(self, key, check_ri=False):
-        # check this against the ref impl
+        # returns root since tree may be rotated
         node = BST.search(self, key)
         parent = node.parent
         BST._delete(self, node)
