@@ -113,7 +113,7 @@ def test_avl_insert():
     assert avl.left.key == 0
     assert avl.right.key == 2
 
-    # check zig-zag left heavy fix works at root
+    # check rebalance for zig-zag left heavy at root
     avl = AVL(parent=None, key=0)
     avl = avl.insert(-1, check_ri=True)
     avl = avl.insert(-0.5, check_ri=True)
@@ -124,7 +124,7 @@ def test_avl_insert():
     assert avl.left.key == -1
     assert avl.right.key == 0
 
-    # check zig-zag right heavy fix works at root
+    # check rebalance for zig-zag right heavy at root
     avl = AVL(parent=None, key=0)
     avl = avl.insert(1, check_ri=True)
     avl = avl.insert(0.5, check_ri=True)
