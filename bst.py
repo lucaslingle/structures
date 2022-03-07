@@ -94,11 +94,12 @@ class BST:
     def _delete(self, node):
         # case 1: neither left nor right child
         if not node.left and not node.right:
-            if node.parent.left == node:
-                node.parent.left = None
-            else:
-                node.parent.right = None
-            self._update_heights(node.parent)
+            if node.parent:
+                if node.parent.left == node:
+                    node.parent.left = None
+                else:
+                    node.parent.right = None
+                self._update_heights(node.parent)
         # case 2: both left and right child
         elif node.left and node.right:
             inorder_successor = self._next_larger(node)
@@ -108,12 +109,13 @@ class BST:
         # case 3: only one child
         else:
             child = node.left if node.left else node.right
-            if node.parent.left == node:
-                node.parent.left = child
-            else:
-                node.parent.right = child
             child.parent = node.parent
-            self._update_heights(node.parent)
+            if node.parent:
+                if node.parent.left == node:
+                    node.parent.left = child
+                else:
+                    node.parent.right = child
+                self._update_heights(node.parent)
 
     def delete(self, key, check_ri=False):
         # todo: need to return new root in case it changes.

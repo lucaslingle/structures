@@ -104,8 +104,8 @@ class AVL(BST):
             x.left.parent = x
             return x.right_rotate()
 
-    def rebalance(self, node):
-        root = None
+    def rebalance(self):
+        root, node = None, self
         while node:
             node.update_height()
             if node.balance == 2:
@@ -121,7 +121,7 @@ class AVL(BST):
         # returns root since tree may be rotated
         node = AVL(key=key, parent=None)
         BST._insert(self, node)
-        root = self.rebalance(node)
+        root = node.rebalance()
         if check_ri:
             root.check_ri()
         return root
@@ -131,7 +131,7 @@ class AVL(BST):
         node = BST.search(self, key)
         parent = node.parent
         BST._delete(self, node)
-        root = self.rebalance(parent)
-        if check_ri:
+        root = parent.rebalance() if parent else None
+        if check_ri and root:
             root.check_ri()
         return root

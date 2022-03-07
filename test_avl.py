@@ -71,7 +71,7 @@ def test_avl_balance():
 
 
 def test_avl_insert():
-    # check constructor
+    # test constructor
     avl = AVL(parent=None, key=0)
     #        0
     assert avl.height == 0
@@ -79,7 +79,7 @@ def test_avl_insert():
     assert avl.left is None
     assert avl.right is None
 
-    # check leaf insert left
+    # test leaf insert left
     avl = avl.insert(-1, check_ri=True)
     #         0
     #   -1
@@ -89,7 +89,7 @@ def test_avl_insert():
     assert avl.left.parent == avl
     assert avl.right is None
 
-    # check leaf insert right
+    # test leaf insert right
     avl = avl.insert(1, check_ri=True)
     #         0
     #    -1       1
@@ -100,7 +100,7 @@ def test_avl_insert():
     assert avl.right.key == 1
     assert avl.right.parent == avl
 
-    # check rebalance for straight left heavy at root
+    # test rebalance for straight left heavy at root
     avl = AVL(parent=None, key=0)
     avl = avl.insert(-1, check_ri=True)
     avl = avl.insert(-2, check_ri=True)
@@ -111,7 +111,7 @@ def test_avl_insert():
     assert avl.left.key == -2
     assert avl.right.key == 0
 
-    # check rebalance for straight right heavy at root
+    # test rebalance for straight right heavy at root
     avl = AVL(parent=None, key=0)
     avl = avl.insert(1, check_ri=True)
     avl = avl.insert(2, check_ri=True)
@@ -122,7 +122,7 @@ def test_avl_insert():
     assert avl.left.key == 0
     assert avl.right.key == 2
 
-    # check rebalance for zig-zag left heavy at root
+    # test rebalance for zig-zag left heavy at root
     avl = AVL(parent=None, key=0)
     avl = avl.insert(-1, check_ri=True)
     avl = avl.insert(-0.5, check_ri=True)
@@ -133,7 +133,7 @@ def test_avl_insert():
     assert avl.left.key == -1
     assert avl.right.key == 0
 
-    # check rebalance for zig-zag right heavy at root
+    # test rebalance for zig-zag right heavy at root
     avl = AVL(parent=None, key=0)
     avl = avl.insert(1, check_ri=True)
     avl = avl.insert(0.5, check_ri=True)
@@ -144,7 +144,7 @@ def test_avl_insert():
     assert avl.left.key == 0
     assert avl.right.key == 1
 
-    # check rebalance for straight left heavy at non-root node
+    # test rebalance for straight left heavy at non-root node
     avl = AVL(parent=None, key=-1)
     avl = avl.insert(0, check_ri=True)
     avl = avl.insert(-2, check_ri=True)
@@ -160,7 +160,7 @@ def test_avl_insert():
     assert avl.left.right.key == -2
     assert avl.left.left.key == -4
 
-    # check rebalance for straight right heavy at non-root node
+    # test rebalance for straight right heavy at non-root node
     avl = AVL(parent=None, key=1)
     avl = avl.insert(0, check_ri=True)
     avl = avl.insert(2, check_ri=True)
@@ -176,7 +176,7 @@ def test_avl_insert():
     assert avl.right.left.key == 2
     assert avl.right.right.key == 4
 
-    # check rebalance for zig-zag left heavy at non-root node
+    # test rebalance for zig-zag left heavy at non-root node
     avl = AVL(parent=None, key=-1)
     avl = avl.insert(0, check_ri=True)
     avl = avl.insert(-2, check_ri=True)
@@ -192,7 +192,7 @@ def test_avl_insert():
     assert avl.left.right.key == -2
     assert avl.left.left.key == -3
 
-    # check rebalance for zig-zag right heavy at non-root node
+    # test rebalance for zig-zag right heavy at non-root node
     avl = AVL(parent=None, key=1)
     avl = avl.insert(0, check_ri=True)
     avl = avl.insert(2, check_ri=True)
@@ -209,5 +209,96 @@ def test_avl_insert():
     assert avl.right.right.key == 3
 
 
+def test_avl_delete():
+    # test root delete singleton
+    avl = AVL(parent=None, key=0)
+    avl = avl.delete(0)
+    assert avl is None
+
+    # todo: get this to work
+    """
+    # test root delete with subtrees
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.delete(0)
+    assert avl.height == 0
+    assert avl.key == 1
+    assert avl.parent is None
+    assert avl.left is None
+    assert avl.right is None
+    """
+
+    # test leaf delete left
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.delete(-1)
+    assert avl.height == 0
+    assert avl.key == 0
+    assert avl.left is None
+    assert avl.right is None
+
+    # test leaf delete right
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.delete(1)
+    assert avl.height == 0
+    assert avl.key == 0
+    assert avl.left is None
+    assert avl.right is None
+
+    # test rebalance for straight left heavy root
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    avl = avl.delete(1)
+    #         -1
+    #     0        -2
+    assert avl.height == 1
+    assert avl.key == -1
+    assert avl.right.key == 0
+    assert avl.left.key == -2
+
+    # test rebalance for straight right heavy root
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(2, check_ri=True)
+    avl = avl.delete(-1)
+    #         1
+    #     0       2
+    assert avl.height == 1
+    assert avl.key == 1
+    assert avl.left.key == 0
+    assert avl.right.key == 2
+
+    # test rebalance for zig-zag left heavy root
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(-0.5, check_ri=True)
+    avl = avl.delete(1)
+    #         -0.5
+    #     -1         0
+    assert avl.height == 1
+    assert avl.key == -0.5
+    assert avl.right.key == 0
+    assert avl.left.key == -1
+
+    # test rebalance for zig-zag right heavy root
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(0.5, check_ri=True)
+    avl = avl.delete(-1)
+    #         0.5
+    #     0        1
+    assert avl.height == 1
+    assert avl.key == 0.5
+    assert avl.left.key == 0
+    assert avl.right.key == 1
+
+
 if __name__ == '__main__':
-    test_avl_insert()
+    #test_avl_insert()
+    test_avl_delete()
