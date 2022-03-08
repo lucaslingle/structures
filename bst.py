@@ -57,11 +57,15 @@ class BST:
         return self._next_larger(node)
 
     def _update_heights(self, node):
+        root = None
         while node:
             node.height = 1 + max(
                 node.left.height if node.left else -1,
                 node.right.height if node.right else -1)
+            if not node.parent:
+                root = node
             node = node.parent
+        return root
 
     def _insert(self, node):
         if node.key == self.key:
@@ -70,26 +74,25 @@ class BST:
             if not self.left:
                 self.left = node
                 node.parent = self
-                self._update_heights(node.parent)
+                return self._update_heights(node.parent)
             else:
                 assert isinstance(self.left, BST)
-                self.left._insert(node)
+                return self.left._insert(node)
         else:
             if not self.right:
                 self.right = node
                 node.parent = self
-                self._update_heights(node.parent)
+                return self._update_heights(node.parent)
             else:
                 assert isinstance(self.right, BST)
-                self.right._insert(node)
+                return self.right._insert(node)
 
     def insert(self, key, check_ri=False):
         node = BST(key=key, parent=None)
-        self._insert(node)
+        root = self._insert(node)
         if check_ri:
-            while node.parent:
-                node = node.parent
-            node.check_ri()
+            root.check_ri()
+        return root
 
     def _delete(self, node):
         # case 1: neither left nor right child
@@ -99,13 +102,16 @@ class BST:
                     node.parent.left = None
                 else:
                     node.parent.right = None
-                self._update_heights(node.parent)
+                return self._update_heights(node.parent)
+            else:
+                return None
         # case 2: both left and right child
         elif node.left and node.right:
             inorder_successor = self._next_larger(node)
             if inorder_successor:
-                self._delete(inorder_successor)
+                root = self._delete(inorder_successor)
                 node.key = inorder_successor.key
+                return root
         # case 3: only one child
         else:
             child = node.left if node.left else node.right
@@ -115,17 +121,17 @@ class BST:
                     node.parent.left = child
                 else:
                     node.parent.right = child
-                self._update_heights(node.parent)
+                return self._update_heights(node.parent)
+            else:
+                return child
 
     def delete(self, key, check_ri=False):
         # todo: need to return new root in case it changes.
         node = self.search(key)
-        self._delete(node)
-        if check_ri:
-            while node.parent:
-                node = node.parent
-            print(node.__repr__())
-            node.check_ri()
+        root = self._delete(node)
+        if check_ri and root:
+            root.check_ri()
+        return root
 
     def __repr__(self):
         return f"BST(key={self.key}, height={self.height}, left={self.left.__repr__()}, right={self.right.__repr__()})"

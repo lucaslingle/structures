@@ -130,8 +130,8 @@ class AVL(BST):
         # returns root since tree may be rotated
         node = BST.search(self, key)
         parent = node.parent
-        BST._delete(self, node)
-        root = parent.rebalance() if parent else None
+        root = BST._delete(self, node)
+        root = parent.rebalance() if parent else root
         if check_ri and root:
             root.check_ri()
         return root

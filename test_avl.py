@@ -215,8 +215,6 @@ def test_avl_delete():
     avl = avl.delete(0)
     assert avl is None
 
-    # todo: get this to work
-    """
     # test root delete with subtrees
     avl = AVL(parent=None, key=0)
     avl = avl.insert(1, check_ri=True)
@@ -226,7 +224,6 @@ def test_avl_delete():
     assert avl.parent is None
     assert avl.left is None
     assert avl.right is None
-    """
 
     # test leaf delete left
     avl = AVL(parent=None, key=0)
