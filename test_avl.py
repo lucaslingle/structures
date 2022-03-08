@@ -295,7 +295,109 @@ def test_avl_delete():
     assert avl.left.key == 0
     assert avl.right.key == 1
 
+    #############
 
-if __name__ == '__main__':
-    #test_avl_insert()
-    test_avl_delete()
+    # test rebalance for straight left heavy at non-root node
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(-0.5, check_ri=True)
+    avl = avl.insert(0.5, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    avl = avl.insert(2, check_ri=True)
+    avl = avl.insert(-3, check_ri=True)
+    #             0
+    #       -1          1
+    #    -2  -0.5    0.5    2
+    # -3
+    avl = avl.delete(-0.5, check_ri=True)
+    #           0
+    #      -2        1
+    #   -3   -1   -0.5   2
+    assert avl.height == 2
+    assert avl.key == 0
+    assert avl.left.key == -2
+    assert avl.left.left.key == -3
+    assert avl.left.right.key == -1
+    assert avl.right.key == 1
+    assert avl.right.left.key == 0.5
+    assert avl.right.right.key == 2
+
+    # test rebalance for straight right heavy at non-root node
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(-0.5, check_ri=True)
+    avl = avl.insert(0.5, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    avl = avl.insert(2, check_ri=True)
+    avl = avl.insert(3, check_ri=True)
+    #             0
+    #      -1           1
+    #   -2  -0.5    0.5    2
+    #                         3
+    avl = avl.delete(0.5, check_ri=True)
+    #             0
+    #      -1             2
+    #   -2  -0.5      1       3
+    assert avl.height == 2
+    assert avl.key == 0
+    assert avl.left.key == -1
+    assert avl.left.left.key == -2
+    assert avl.left.right.key == -0.5
+    assert avl.right.key == 2
+    assert avl.right.left.key == 1
+    assert avl.right.right.key == 3
+
+    # test rebalance for zig-zag left heavy at non-root node
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(-0.5, check_ri=True)
+    avl = avl.insert(0.5, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    avl = avl.insert(2, check_ri=True)
+    avl = avl.insert(-1.5, check_ri=True)
+    #                0
+    #       -1               1
+    #   -2     -0.5      0.5       2
+    #    -1.5
+    avl = avl.delete(-0.5, check_ri=True)
+    #               0
+    #      -1.5            1
+    #   -2    -1      0.5      2
+    assert avl.height == 2
+    assert avl.key == 0
+    assert avl.left.key == -1.5
+    assert avl.left.left.key == -2
+    assert avl.left.right.key == -1
+    assert avl.right.key == 1
+    assert avl.right.left.key == 0.5
+    assert avl.right.right.key == 2
+
+    # test rebalance for zig-zag right heavy at non-root node
+    avl = AVL(parent=None, key=0)
+    avl = avl.insert(-1, check_ri=True)
+    avl = avl.insert(1, check_ri=True)
+    avl = avl.insert(-0.5, check_ri=True)
+    avl = avl.insert(0.5, check_ri=True)
+    avl = avl.insert(-2, check_ri=True)
+    avl = avl.insert(2, check_ri=True)
+    avl = avl.insert(1.5, check_ri=True)
+    #             0
+    #      -1             1
+    #   -2  -0.5    0.5       2
+    #                      1.5
+    avl = avl.delete(0.5, check_ri=True)
+    #             0
+    #      -1            1.5
+    #   -2  -0.5      1       2
+    assert avl.height == 2
+    assert avl.key == 0
+    assert avl.left.key == -1
+    assert avl.left.left.key == -2
+    assert avl.left.right.key == -0.5
+    assert avl.right.key == 1.5
+    assert avl.right.left.key == 1
+    assert avl.right.right.key == 2
+

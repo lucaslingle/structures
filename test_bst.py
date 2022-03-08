@@ -251,9 +251,3 @@ def test_bst_delete():
     assert bst.left.left.right is None
     assert bst.right.right.left is None
     assert bst.right.right.right is None
-
-
-if __name__ == '__main__':
-    test_bst_insert()
-    test_bst_search()
-    test_bst_delete()
