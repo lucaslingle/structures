@@ -98,7 +98,7 @@ class BST:
         # case 1: neither left nor right child
         if not node.left and not node.right:
             if node.parent:
-                if node.parent.left == node:
+                if node.parent.left is node:
                     node.parent.left = None
                 else:
                     node.parent.right = None
@@ -117,7 +117,7 @@ class BST:
             child = node.left if node.left else node.right
             child.parent = node.parent
             if node.parent:
-                if node.parent.left == node:
+                if node.parent.left is node:
                     node.parent.left = child
                 else:
                     node.parent.right = child
@@ -126,7 +126,6 @@ class BST:
                 return child
 
     def delete(self, key, check_ri=False):
-        # todo: need to return new root in case it changes.
         node = self.search(key)
         root = self._delete(node)
         if check_ri and root:
